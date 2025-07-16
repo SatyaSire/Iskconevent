@@ -1,10 +1,15 @@
 import React, { useEffect } from 'react';
+import { useState } from 'react';
 import { useEvents } from '../contexts/EventContext';
 import { useAuth } from '../contexts/AuthContext';
 import EventCard from '../components/events/EventCard';
 import FilterPanel from '../components/events/FilterPanel';
+import EventCalendar from '../components/events/EventCalendar';
+import EventMap from '../components/events/EventMap';
+import EventAnalytics from '../components/events/EventAnalytics';
 import Pagination from '../components/common/Pagination';
 import Loader from '../components/common/Loader';
+import { Calendar, Map, BarChart3, Grid } from 'lucide-react';
 
 const HomePage: React.FC = () => {
   const { user } = useAuth();
@@ -21,6 +26,9 @@ const HomePage: React.FC = () => {
     setSearchQuery,
     fetchUserRegistrations,
   } = useEvents();
+
+  const [viewMode, setViewMode] = useState<'grid' | 'calendar' | 'map' | 'analytics'>('grid');
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
 
   useEffect(() => {
     if (user) {
@@ -52,17 +60,92 @@ const HomePage: React.FC = () => {
         </div>
       </div>
 
+      {/* View Mode Selector */}
+      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div className="flex items-center justify-center space-x-1">
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+              viewMode === 'grid' 
+                ? 'bg-amber-500 text-white' 
+                : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <Grid className="h-4 w-4" />
+            <span>Grid View</span>
+          </button>
+          
+          <button
+            onClick={() => setViewMode('calendar')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+              viewMode === 'calendar' 
+                ? 'bg-amber-500 text-white' 
+                : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <Calendar className="h-4 w-4" />
+            <span>Calendar</span>
+          </button>
+          
+          <button
+            onClick={() => setViewMode('map')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+              viewMode === 'map' 
+                ? 'bg-amber-500 text-white' 
+                : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <Map className="h-4 w-4" />
+            <span>Map View</span>
+          </button>
+          
+          {user?.role === 'admin' && (
+            <button
+              onClick={() => setViewMode('analytics')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                viewMode === 'analytics' 
+                  ? 'bg-amber-500 text-white' 
+                  : 'text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              <BarChart3 className="h-4 w-4" />
+              <span>Analytics</span>
+            </button>
+          )}
+        </div>
+      </div>
       {/* Filter Panel */}
-      <FilterPanel
-        filters={filters}
-        searchQuery={searchQuery}
-        onFiltersChange={setFilters}
-        onSearchChange={setSearchQuery}
-      />
+      {viewMode === 'grid' && (
+        <FilterPanel
+          filters={filters}
+          searchQuery={searchQuery}
+          onFiltersChange={setFilters}
+          onSearchChange={setSearchQuery}
+        />
+      )}
 
-      {/* Events List */}
+      {/* Content based on view mode */}
       {loading ? (
         <Loader text="Updating events..." />
+      ) : viewMode === 'calendar' ? (
+        <EventCalendar
+          events={events}
+          onEventClick={(event) => {
+            setSelectedEvent(event);
+            window.open(`/events/${event.id}`, '_blank');
+          }}
+          onDateSelect={(date) => {
+            setFilters({ ...filters, date: date.toISOString().split('T')[0] });
+          }}
+        />
+      ) : viewMode === 'map' ? (
+        <EventMap
+          events={events}
+          selectedEvent={selectedEvent}
+          onEventSelect={setSelectedEvent}
+        />
+      ) : viewMode === 'analytics' ? (
+        <EventAnalytics events={events} />
       ) : events.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-slate-400 text-lg mb-4">
@@ -94,7 +177,7 @@ const HomePage: React.FC = () => {
       )}
 
       {/* Call to Action */}
-      {!user && (
+      {!user && viewMode === 'grid' && (
         <div className="bg-gradient-to-r from-pink-100 to-orange-100 rounded-xl p-8 text-center">
           <h2 className="text-2xl font-bold text-slate-800 mb-4">
             Join Our Spiritual Community

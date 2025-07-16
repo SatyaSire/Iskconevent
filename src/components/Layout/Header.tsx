@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, Calendar, User, LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import NotificationCenter from '../notifications/NotificationCenter';
 
 const Header: React.FC = () => {
   const { user, logout } = useAuth();
@@ -70,6 +71,7 @@ const Header: React.FC = () => {
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-4">
+                <NotificationCenter />
                 <div className="flex items-center space-x-2 text-white">
                   <User className="h-5 w-5" />
                   <span className="font-medium">{user.name}</span>
@@ -173,6 +175,13 @@ const Header: React.FC = () => {
                 </div>
               )}
             </nav>
+            
+            {/* Mobile Notification Center */}
+            {user && (
+              <div className="pt-3 border-t border-amber-400">
+                <NotificationCenter />
+              </div>
+            )}
           </div>
         )}
       </div>
