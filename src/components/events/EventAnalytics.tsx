@@ -237,7 +237,7 @@ export default function EventAnalytics({ events }: EventAnalyticsProps) {
           <h4 className="font-semibold text-gray-800 mb-3">Capacity Utilization</h4>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">High Demand (>80%)</span>
+              <span className="text-sm text-gray-600">High Demand (80%)</span>
               <span className="font-medium text-gray-800">
                 {events.filter(e => (e.registered / e.capacity) > 0.8).length}
               </span>
