@@ -252,7 +252,7 @@ export default function EventAnalytics({ events }: EventAnalyticsProps) {
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Low Demand (<50%)</span>
+              <span className="text-sm text-gray-600">Low Demand (50%)</span>
               <span className="font-medium text-gray-800">
                 {events.filter(e => (e.registered / e.capacity) < 0.5).length}
               </span>
